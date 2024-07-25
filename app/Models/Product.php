@@ -29,4 +29,12 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    /**
+     * Get the ratings for the product.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
 }

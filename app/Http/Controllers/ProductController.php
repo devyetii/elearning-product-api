@@ -104,4 +104,49 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'Product not found'], 404);
     }
+
+    /**
+     * Get product reviews
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getReviews($id)
+    {
+        $product = $this->productRepository->findById($id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        return response()->json([
+            'reviews' => $product->reviews()->get()
+        ], 200);
+    }
+
+    /**
+     * Add product review
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addReview(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'required|numeric|between:0,5',
+            'review' => 'nullable|string'
+        ]);
+
+        $product = $this->productRepository->addReview($id, auth()->id(), $request->rating, $request->review);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Product review added successfully',
+            'review' => $request->review,
+        ], 200);
+    }
 }

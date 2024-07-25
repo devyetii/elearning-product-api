@@ -13,6 +13,8 @@ Route::post('register', [AuthController::class, 'register']);
 Route::middleware('auth:api')->group(function () {
     Route::get('products', [ProductController::class, 'index']);
     Route::get('products/{product}', [ProductController::class, 'show']);
+    Route::get('products/{product}/reviews', [ProductController::class, 'getReviews']);
+    Route::post('products/{product}/reviews', [ProductController::class, 'addReview']);
 });
 
 // Admin routes

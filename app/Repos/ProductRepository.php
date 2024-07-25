@@ -3,6 +3,8 @@
 namespace App\Repos;
 
 use App\Models\Product;
+use App\Models\ProductRating;
+use App\Models\ProductReview;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductRepository
@@ -81,6 +83,28 @@ class ProductRepository
         }
 
         return null;
+    }
+
+    /**
+     * Update product rating
+     * 
+     * @param int $productId
+     * @param int $userId
+     * @param float $rating
+     * @param string $review
+     */
+    public function addReview($productId, $userId, $rating, $review)
+    {
+        ProductReview::updateOrCreate(
+            ['product_id' => $productId, 'user_id' => $userId],
+            ['rating' => $rating, 'review' => $review]
+        );
+
+        // Cache average rating to product table
+        $product = $this->findById($productId);
+        $product->rating = $product->reviews()->avg('rating');
+
+        return $product->save();
     }
 
     /**

@@ -6,9 +6,17 @@ use App\Models\Product;
 use App\Models\ProductRating;
 use App\Models\ProductReview;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 class ProductRepository
 {
+    /**
+     * Cache time-to-live in seconds.
+     * 
+     * @var int
+     */
+    protected $cacheTTL = 3600;
+
     /**
      * Retrieve all products with optional filters, sorting, and pagination.
      *
@@ -63,7 +71,22 @@ class ProductRepository
      */
     public function findById($id)
     {
-        return Product::find($id);
+        return Cache::remember("product_{$id}", $this->cacheTTL, function () use ($id) {
+            return Product::find($id);
+        });
+    }
+
+    /**
+     * Retrieve a product by its name.
+     *
+     * @param string $name
+     * @return Product|null
+     */
+    public function findByName($name)
+    {
+        return Cache::remember("product_name_{$name}", $this->cacheTTL, function () use ($name) {
+            return Product::where('name', $name)->first();
+        });
     }
 
     /**
@@ -79,6 +102,7 @@ class ProductRepository
 
         if ($product) {
             $product->update($data);
+            $this->clearCache($id);
             return $product;
         }
 
@@ -119,9 +143,28 @@ class ProductRepository
         $product = $this->findById($id);
 
         if ($product) {
-            return $product->delete();
+            $product->delete();
+            $this->clearCache($id);
+            return true;
         }
 
         return false;
+    }
+
+    /**
+     * Clear cache for a product.
+     * @param string|null $id
+     * @param string|null $name
+     * @return void
+     */
+    protected function clearCache($id = null, $name = null)
+    {
+        if ($id) {
+            Cache::forget("product_{$id}");
+        }
+
+        if ($name) {
+            Cache::forget("product_name_{$name}");
+        }
     }
 }

@@ -40,7 +40,7 @@ class ProductController extends Controller
      * Store a newly created resource in storage.
      *
      * @param \App\Http\Requests\CreateProductRequest $request
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\ProductResource
      */
     public function store(CreateProductRequest $request)
     {
@@ -54,7 +54,7 @@ class ProductController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\ProductResource
      */
     public function show($id)
     {
@@ -72,7 +72,7 @@ class ProductController extends Controller
      *
      * @param \App\Http\Requests\UpdateProductRequest $request
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\ProductResource
      */
     public function update(UpdateProductRequest $request, $id)
     {
@@ -90,14 +90,16 @@ class ProductController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
         $result = $this->productRepository->delete($id);
 
         if ($result) {
-            return response()->json(null, 204);
+            return response()->json([
+                'message' => 'Product deleted successfully'
+            ], 200);
         }
 
         return response()->json(['message' => 'Product not found'], 404);

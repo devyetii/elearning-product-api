@@ -42,11 +42,7 @@ This project is a Laravel-based application providing a product management API. 
     ```bash
     ./vendor/bin/sail artisan migrate --seed
     ```
-6. **Install Passport for API authentication:**
-    ```bash
-    ./vendor/bin/sail artisan passport:install
-    ```
-7. **Access the application:**
+6. **Access the application:**
     The application should now be running at `http://localhost:8888`.
 
 ## API Documentation 

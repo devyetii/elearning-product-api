@@ -95,7 +95,7 @@ class ProductRepository
      */
     public function addReview($productId, $userId, $rating, $review)
     {
-        ProductReview::updateOrCreate(
+        $review = ProductReview::updateOrCreate(
             ['product_id' => $productId, 'user_id' => $userId],
             ['rating' => $rating, 'review' => $review]
         );
@@ -103,8 +103,9 @@ class ProductRepository
         // Cache average rating to product table
         $product = $this->findById($productId);
         $product->rating = $product->reviews()->avg('rating');
+        $product->save();
 
-        return $product->save();
+        return $review;
     }
 
     /**

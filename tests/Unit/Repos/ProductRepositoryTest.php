@@ -4,6 +4,8 @@ namespace Tests\Unit\Repos;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductReview;
+use App\Models\User;
 use App\Repos\ProductRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -112,6 +114,33 @@ class ProductRepositoryTest extends TestCase
 
         $this->assertInstanceOf(Product::class, $updatedProduct);
         $this->assertEquals('Updated Product', $updatedProduct->name);
+    }
+
+    public function test_add_product_review()
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $product = Product::factory()->create();
+        $review1 = ['rating' => 4.0, 'review' => 'Great product!'];
+        $review2 = ['rating' => 2.0, 'review' => 'Bad Product!'];
+
+        $review = $this->productRepository->addReview($product->id, $user1->id, $review1['rating'], $review1['review']);
+
+        $this->assertInstanceOf(ProductReview::class, $review);
+        $this->assertEquals(4.0, $review->rating);
+        $this->assertEquals('Great product!', $review->review);
+        
+        $product_after_first_review = Product::find($product->id);
+        $this->assertEquals(4.0, $product_after_first_review->rating);
+
+        $review = $this->productRepository->addReview($product->id, $user2->id, $review2['rating'], $review2['review']);
+
+        $this->assertInstanceOf(ProductReview::class, $review);
+        $this->assertEquals(2.0, $review->rating);
+        $this->assertEquals('Bad Product!', $review->review);
+
+        $product_after_second_review = Product::find($product->id);
+        $this->assertEquals(3.0, $product_after_second_review->rating);
     }
 
     public function test_delete_product()
